@@ -1,0 +1,316 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-cream-50 text-ember-700 antialiased;
+    font-size: 15px;
+    line-height: 1.65;
+    background-image:
+      radial-gradient(circle at top left, rgba(109, 41, 50, 0.14), transparent 40%),
+      radial-gradient(circle at bottom right, rgba(199, 183, 163, 0.42), transparent 36%),
+      linear-gradient(180deg, #fbf7f0 0%, #f4ecdf 56%, #e8d8c4 100%);
+  }
+
+  * {
+    @apply border-taupe-200;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-wine-950;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  h1 { letter-spacing: -0.025em; }
+  h2 { letter-spacing: -0.02em; }
+  h3 { letter-spacing: -0.015em; }
+
+  p {
+    line-height: 1.65;
+  }
+
+  ::selection {
+    background: theme(colors.wine.900);
+    color: theme(colors.cream.50);
+  }
+
+  :focus-visible {
+    outline: 2px solid theme(colors.wine.900);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-wine-950 px-5 py-2.5 text-[13px] font-semibold text-cream-50 transition duration-200 hover:-translate-y-0.5 hover:bg-wine-900 hover:shadow-lift disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-taupe-200 bg-cream-50 px-5 py-2.5 text-[13px] font-semibold text-ember-700 transition duration-200 hover:-translate-y-0.5 hover:border-wine-700 hover:bg-cream-100 disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-[13px] font-semibold text-ember-700 transition hover:bg-wine-100 hover:text-wine-950;
+  }
+  .field-label {
+    @apply mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-taupe-600;
+  }
+  .field-input {
+    @apply w-full rounded-2xl border border-taupe-200 bg-cream-50 px-4 py-3 text-sm text-ember-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] outline-none transition placeholder:text-taupe-400 focus:border-wine-700 focus:ring-2 focus:ring-wine-700/20;
+  }
+  .surface {
+    @apply rounded-[28px] border border-taupe-200/80 bg-cream-50 shadow-soft backdrop-blur;
+  }
+  .surface-strong {
+    @apply rounded-[28px] border border-wine-800/20 bg-gradient-to-br from-wine-950 via-wine-900 to-wine-800 text-cream-50 shadow-soft;
+  }
+  .surface-muted {
+    @apply rounded-[28px] border border-taupe-200 bg-gradient-to-br from-cream-50 to-sand-100 shadow-soft;
+  }
+  .stat-card {
+    @apply surface flex flex-col gap-2 p-5;
+  }
+  .section-kicker {
+    @apply font-body text-[10.5px] font-semibold uppercase tracking-[0.22em] text-taupe-600;
+  }
+  .page-frame {
+    @apply mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8;
+  }
+  .section-title {
+    @apply text-[1.6rem] font-semibold text-wine-950 sm:text-[2rem];
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .section-copy {
+    @apply max-w-2xl text-[14.5px] text-ember-700/80;
+    line-height: 1.7;
+  }
+  .nav-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-taupe-200 bg-cream-50 px-4 py-2 text-[13px] font-semibold text-ember-700 transition hover:border-wine-700 hover:bg-wine-100;
+  }
+  .nav-chip-active {
+    @apply border-wine-950 bg-wine-950 text-cream-50;
+  }
+  .status-pill {
+    @apply inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em];
+  }
+  .status-ok {
+    @apply border-wine-950/20 bg-wine-100 text-wine-950;
+  }
+  .status-warn {
+    @apply border-taupe-200 bg-sand-100 text-ember-700;
+  }
+  .status-neutral {
+    @apply border-taupe-200 bg-sand-100 text-ember-700;
+  }
+
+  .receipt {
+    position: relative;
+    background: linear-gradient(180deg, rgba(244, 236, 223, 0.98), rgba(248, 242, 233, 0.95));
+    border: 1px solid rgba(199, 183, 163, 0.7);
+    border-radius: 24px;
+    box-shadow: 0 18px 40px rgba(86, 28, 36, 0.08);
+    overflow: hidden;
+  }
+  .receipt::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto auto 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-image: radial-gradient(
+      circle at 10px 0px,
+      theme(colors.cream.50) 4px,
+      transparent 4.5px
+    );
+    background-size: 20px 8px;
+    background-repeat: repeat-x;
+    opacity: 0.9;
+  }
+
+  .stamp-mark {
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em];
+    transform: rotate(-3deg);
+    letter-spacing: 0.18em;
+  }
+
+  .frost-card {
+    @apply rounded-[24px] border border-cream-50/15 bg-cream-50/10 p-4 backdrop-blur;
+  }
+
+  /* Sliding sign-in / sign-up shell.
+     Mobile stacks the active pane over a gradient prompt; from lg up the two
+     panes sit side by side and the wine overlay slides between them. */
+  .auth-shell {
+    @apply relative flex w-full flex-col overflow-hidden rounded-[32px] border border-taupe-200 bg-cream-50 shadow-soft;
+    /* Never taller than the viewport, so the page itself never scrolls.
+       Spacing and type below scale with viewport height instead. */
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+  }
+
+  .auth-pane {
+    @apply flex min-h-0 flex-col justify-center overflow-y-auto;
+    /* Keeps the top of the form reachable if a very short screen forces the
+       pane to scroll internally. Ignored by browsers without `safe`. */
+    justify-content: safe center;
+    gap: clamp(0.75rem, 2.2vh, 1.5rem);
+    padding: clamp(1.25rem, 3.5vh, 2.5rem) clamp(1.25rem, 4vw, 2.5rem);
+  }
+
+  /* Headline shrinks on short screens rather than pushing the form off-screen. */
+  .auth-pane .section-title {
+    font-size: clamp(1.35rem, 3.4vh, 2rem);
+  }
+
+  .auth-overlay {
+    @apply bg-gradient-to-br from-wine-950 via-wine-900 to-wine-800;
+  }
+
+  .auth-overlay-panel {
+    @apply flex min-h-0 flex-col items-start justify-center overflow-y-auto text-cream-50;
+    justify-content: safe center;
+    gap: clamp(0.4rem, 1.4vh, 0.75rem);
+    padding: clamp(1.25rem, 3.5vh, 2.5rem) clamp(1.25rem, 4vw, 2.5rem);
+  }
+
+  .auth-switch {
+    @apply inline-flex items-center gap-2 rounded-full border border-cream-50/40 px-5 py-2.5 text-[13px] font-semibold text-cream-50 transition duration-200 hover:-translate-y-0.5 hover:bg-cream-50 hover:text-wine-950;
+  }
+
+  @media (max-width: 1023px) {
+    .auth-pane[data-active="false"],
+    .auth-overlay-panel[data-active="false"] {
+      display: none;
+    }
+
+    /* Stacked layout: let both halves shrink inside the capped shell so the
+       page never grows past the viewport. */
+    .auth-overlay-container,
+    .auth-overlay {
+      display: flex;
+      min-height: 0;
+      flex-direction: column;
+    }
+
+    .auth-overlay-container {
+      overflow: hidden;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .auth-shell {
+      display: block;
+      /* Was a flat 600px, which overflowed shorter laptop screens. Now it
+         takes 600px only when the viewport can spare it. */
+      min-height: min(600px, calc(100vh - 3rem));
+      min-height: min(600px, calc(100dvh - 3rem));
+      max-height: calc(100vh - 3rem);
+      max-height: calc(100dvh - 3rem);
+    }
+
+    .auth-pane {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      padding: clamp(1.5rem, 5vh, 3rem);
+      transition:
+        transform 650ms ease-in-out,
+        opacity 400ms ease-in-out,
+        visibility 0s linear 0s;
+    }
+
+    .auth-shell[data-mode="signup"] .auth-pane {
+      transform: translateX(100%);
+    }
+
+    .auth-pane[data-active="true"] {
+      z-index: 5;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .auth-pane[data-active="false"] {
+      z-index: 1;
+      opacity: 0;
+      visibility: hidden;
+      transition-delay: 0s, 0s, 650ms;
+    }
+
+    .auth-overlay-container {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      z-index: 20;
+      height: 100%;
+      width: 50%;
+      overflow: hidden;
+      transition: transform 650ms ease-in-out;
+    }
+
+    .auth-shell[data-mode="signup"] .auth-overlay-container {
+      transform: translateX(-100%);
+    }
+
+    .auth-overlay {
+      position: relative;
+      left: -100%;
+      height: 100%;
+      width: 200%;
+      transform: translateX(0);
+      transition: transform 650ms ease-in-out;
+    }
+
+    .auth-shell[data-mode="signup"] .auth-overlay {
+      transform: translateX(50%);
+    }
+
+    .auth-overlay-panel {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 50%;
+      padding: clamp(1.5rem, 5vh, 3rem);
+      transition: transform 650ms ease-in-out;
+    }
+
+    .auth-overlay-left {
+      left: 0;
+      transform: translateX(-18%);
+    }
+
+    .auth-overlay-right {
+      right: 0;
+      transform: translateX(0);
+    }
+
+    .auth-shell[data-mode="signup"] .auth-overlay-left {
+      transform: translateX(0);
+    }
+
+    .auth-shell[data-mode="signup"] .auth-overlay-right {
+      transform: translateX(18%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .auth-pane,
+    .auth-overlay,
+    .auth-overlay-container,
+    .auth-overlay-panel {
+      transition-duration: 1ms !important;
+      transition-delay: 0s !important;
+    }
+  }
+}
