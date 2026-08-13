@@ -4,6 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast";
+import { Spinner } from "@/components/icons";
+
+/**
+ * The acknowledgement columns arrived after the first schema release, so a
+ * database that predates them fails this update with a raw PostgREST message.
+ * Turn that into something the operator can act on.
+ */
+function describeUpdateError(raw: unknown, fallback: string) {
+  const message = typeof raw === "string" ? raw : "";
+  if (/acknowledg/i.test(message) && /(column|schema cache|does not exist)/i.test(message)) {
+    return "This database is missing the acknowledgement columns. Re-run supabase/schema.sql in the Supabase SQL editor.";
+  }
+  return message || fallback;
+}
 
 interface DeliverableActionsProps {
   id: string;
@@ -55,7 +69,10 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
 
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        toast(json.error ?? "Could not update acknowledgement. Please try again.", "error");
+        toast(
+          describeUpdateError(json.error, "Could not update acknowledgement. Please try again."),
+          "error"
+        );
         return;
       }
 
@@ -112,10 +129,7 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
         >
           {toggleBusy ? (
             <span className="flex items-center gap-1">
-              <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                <path className="opacity-75" d="M4 12a8 8 0 0 1 8-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              </svg>
+              <Spinner className="h-3 w-3" />
               Updating…
             </span>
           ) : (
@@ -141,7 +155,14 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
               : "border-taupe-200 bg-cream-50 text-ember-700 hover:border-wine-700"
           }`}
         >
-          {ackBusy ? "Updating…" : acknowledged ? "✓ Acknowledged" : "Mark Acknowledged"}
+          {ackBusy ? (
+            <span className="flex items-center gap-1">
+              <Spinner className="h-3 w-3" />
+              Updating…
+            </span>
+          ) : (
+            acknowledged ? "✓ Acknowledged" : "Mark Acknowledged"
+          )}
         </button>
 
         {/* Delete button */}

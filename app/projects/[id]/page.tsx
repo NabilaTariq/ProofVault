@@ -27,6 +27,14 @@ const STATUS_CLASS: Record<string, string> = {
 export default async function ProjectPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
+  // Deliverables key off the route param alone, so this round trip does not
+  // have to wait for the project row — fire it first and await it later.
+  const deliverablesPromise = supabase
+    .from("deliverables")
+    .select("*")
+    .eq("project_id", params.id)
+    .order("created_at", { ascending: false });
+
   const { data: project } = await supabase
     .from("projects")
     .select("*")
@@ -34,14 +42,6 @@ export default async function ProjectPage({ params }: { params: { id: string } }
     .single();
 
   if (!project) notFound();
-
-  const { data: deliverablesRaw } = await supabase
-    .from("deliverables")
-    .select("*")
-    .eq("project_id", params.id)
-    .order("created_at", { ascending: false });
-
-  const deliverables: Deliverable[] = (deliverablesRaw ?? []) as Deliverable[];
 
   // ── Sibling projects for the same client ───────────────────────────────────
   // Every project for a client hangs off a single client record, so this is a
@@ -53,10 +53,16 @@ export default async function ProjectPage({ params }: { params: { id: string } }
     .neq("id", params.id)
     .order("created_at", { ascending: false });
 
-  const { data: siblingRaw } = project.client_id
-    ? await siblingQuery.eq("client_id", project.client_id)
-    : await siblingQuery.eq("client_name", project.client_name);
+  // This one needs the project row, so it starts now and runs alongside the
+  // deliverables fetch above rather than after it.
+  const [{ data: deliverablesRaw }, { data: siblingRaw }] = await Promise.all([
+    deliverablesPromise,
+    project.client_id
+      ? siblingQuery.eq("client_id", project.client_id)
+      : siblingQuery.eq("client_name", project.client_name),
+  ]);
 
+  const deliverables: Deliverable[] = (deliverablesRaw ?? []) as Deliverable[];
   const clientProjects: Project[] = (siblingRaw ?? []) as unknown as Project[];
 
   // ── Financial calculations ─────────────────────────────────────────────────
