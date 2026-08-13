@@ -223,7 +223,7 @@ export function DeliverableForm({ projectId, currency, aiEnabled }: DeliverableF
     // ── Save deliverable record ───────────────────────────────────────────────
     // The acknowledgement is recorded only when the user left the box ticked,
     // and its timestamp is when it was logged here — the same meaning the rest
-    // of ProofVault gives a timestamp, not a date read off the screenshot.
+    // of Taskora gives a timestamp, not a date read off the screenshot.
     const acknowledged = recordAck && ackNote.trim() !== "";
 
     setStatus("saving");

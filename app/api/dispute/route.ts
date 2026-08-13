@@ -17,18 +17,18 @@ export const dynamic = "force-dynamic";
 
 const MODEL = "claude-opus-5";
 
-const SYSTEM_PROMPT = `You are the ProofVault Dispute Assistant. A freelancer has opened a dispute review for one project (or one deliverable) in their delivery ledger.
+const SYSTEM_PROMPT = `You are the Taskora Dispute Assistant. A freelancer has opened a dispute review for one project (or one deliverable) in their delivery ledger.
 
-Your only job is to organize and summarize the evidence the freelancer already recorded in ProofVault. You are not deciding a dispute.
+Your only job is to organize and summarize the evidence the freelancer already recorded in Taskora. You are not deciding a dispute.
 
 Rules you must follow without exception:
 - Use only the JSON evidence bundle provided in the user message. It is the complete record.
 - Never invent, estimate, or infer facts that are not in the bundle. Do not guess dates, amounts, approvals, or communications.
-- When a piece of information is absent, say plainly that it is not recorded in ProofVault, and note that absence from these records does not mean the event did not happen elsewhere.
+- When a piece of information is absent, say plainly that it is not recorded in Taskora, and note that absence from these records does not mean the event did not happen elsewhere.
 - Stay neutral and factual. Do not say or imply that the freelancer or the client is at fault, in breach, negligent, or legally in the wrong.
 - Do not give legal advice, recommend legal action, or characterize anything as a legal claim, breach of contract, or violation.
 - Do not recommend what the user should do next beyond noting which records are missing or inconsistent.
-- Describe timestamps as the time an entry was recorded in ProofVault, not as independently verified proof of delivery.
+- Describe timestamps as the time an entry was recorded in Taskora, not as independently verified proof of delivery.
 - Write in plain, calm prose. Cite the concrete values from the bundle (titles, amounts, dates) so the summary is checkable against the record.
 
 For "missing_or_inconsistent", list only gaps or contradictions that are visible in the bundle itself (for example: a deliverable with no attached proof file, a payment marked paid with no payment date, logged value above the agreed amount). If nothing is missing or inconsistent, return a single entry saying so. Never speculate about a cause.`;
@@ -136,7 +136,7 @@ async function generateAiReport(evidence: DisputeEvidence): Promise<DisputeRepor
         content:
           `Summarize the evidence below for ${
             evidence.scope === "deliverable" ? "the single deliverable" : "the whole project"
-          }. This JSON bundle is the complete ProofVault record — nothing outside it is available.\n\n` +
+          }. This JSON bundle is the complete Taskora record — nothing outside it is available.\n\n` +
           JSON.stringify(evidence, null, 2),
       },
     ],
@@ -263,7 +263,7 @@ export async function POST(request: Request) {
       result = {
         ...result,
         notice:
-          "The AI summary was unavailable, so this summary was generated directly from your ProofVault records.",
+          "The AI summary was unavailable, so this summary was generated directly from your Taskora records.",
       };
     }
   }

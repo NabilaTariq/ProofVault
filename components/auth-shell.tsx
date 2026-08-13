@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { googleSignInEnabled } from "@/lib/firebase/client";
+import { signInWithGoogle, GoogleSignInError } from "@/lib/firebase/google-sign-in";
 import { Logo } from "@/components/logo";
-import { ArrowRightIcon } from "@/components/icons";
+import { ArrowRightIcon, GoogleIcon } from "@/components/icons";
 
 type Mode = "login" | "signup";
 
@@ -35,6 +37,61 @@ function signupError(msg: string): string {
   return msg;
 }
 
+/**
+ * Google sign-in via Firebase, exchanged for a Supabase session. Rendered in
+ * both panes, so it keeps its own state rather than sharing the parent's.
+ */
+function GoogleButton({ label, onDone }: { label: string; onDone: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!googleSignInEnabled) return null;
+
+  async function handleClick() {
+    setLoading(true);
+    setError(null);
+    try {
+      await signInWithGoogle();
+      onDone();
+    } catch (err) {
+      setError(
+        err instanceof GoogleSignInError
+          ? err.message
+          : "Could not sign in with Google. Please try again."
+      );
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3" aria-hidden="true">
+        <span className="h-px flex-1 bg-taupe-200" />
+        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-taupe-600">
+          or
+        </span>
+        <span className="h-px flex-1 bg-taupe-200" />
+      </div>
+
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={loading}
+        className="btn-secondary w-full"
+      >
+        {!loading && <GoogleIcon className="h-4 w-4" />}
+        {loading ? "Connecting to Google..." : label}
+      </button>
+
+      {error && (
+        <p className="rounded-2xl border border-wine-900/15 bg-wine-100 px-4 py-3 text-sm text-wine-950">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function AuthShell({ initialMode }: { initialMode: Mode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -50,6 +107,12 @@ export function AuthShell({ initialMode }: { initialMode: Mode }) {
   const [signUpError, setSignUpError] = useState<string | null>(null);
   const [signUpLoading, setSignUpLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
+  /** Shared landing for OAuth sign-ins, which skip the email confirmation step. */
+  function finishOAuth() {
+    router.push(searchParams.get("redirectTo") || "/dashboard");
+    router.refresh();
+  }
 
   /** Swap panes without a route change so the slide animation is not interrupted. */
   function switchMode(next: Mode) {
@@ -189,6 +252,8 @@ export function AuthShell({ initialMode }: { initialMode: Mode }) {
           </button>
         </form>
 
+        <GoogleButton label="Sign in with Google" onDone={finishOAuth} />
+
         <p className="text-sm text-taupe-600 lg:hidden">
           New here?{" "}
           <button
@@ -248,6 +313,8 @@ export function AuthShell({ initialMode }: { initialMode: Mode }) {
           </button>
         </form>
 
+        <GoogleButton label="Continue with Google" onDone={finishOAuth} />
+
         <p className="text-sm text-taupe-600 lg:hidden">
           Have an account?{" "}
           <button
@@ -278,7 +345,7 @@ export function AuthShell({ initialMode }: { initialMode: Mode }) {
           <div className="auth-overlay-panel auth-overlay-right" data-active={String(!isSignup)}>
             <p className="section-kicker text-cream-50/70">new here</p>
             <h2 className="text-[clamp(1.25rem,3vh,1.875rem)] font-semibold tracking-tight text-cream-50">
-              Start your proof vault.
+              Start your delivery ledger.
             </h2>
             <p className="max-w-xs text-sm leading-6 text-cream-50/80">
               One account for every client handoff.

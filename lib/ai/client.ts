@@ -3,7 +3,7 @@
 // Server-side only. OPENAI_API_KEY is never exposed to the browser, so every
 // call goes through a route handler under app/api.
 //
-// AI is optional throughout ProofVault: without a key the app keeps working,
+// AI is optional throughout Taskora: without a key the app keeps working,
 // the feature simply does not offer itself. Callers check `isAiEnabled()`
 // before reaching for `getOpenAI()`.
 

@@ -1,4 +1,4 @@
-# ProofVault
+# Taskora
 
 A dispute-proof delivery ledger for freelancers. Log every deliverable you
 send a client, attach a timestamped screenshot or file as proof, and track
@@ -8,7 +8,7 @@ scattered across chat threads and platform messages.
 **The gap it fills:** Upwork/Fiverr disputes and "client went quiet after
 delivery" situations are common, and freelancers rarely keep organized,
 timestamped proof of what they shipped and when. Existing tools are either
-full invoicing suites (overkill) or nothing at all. ProofVault is the
+full invoicing suites (overkill) or nothing at all. Taskora is the
 lightweight middle: a ledger + evidence vault, free to run.
 
 Stack: **Next.js 14 (App Router)** · **Supabase** (auth + Postgres +
@@ -22,7 +22,7 @@ Storage, free tier) · **Vercel** (hosting, free tier).
    security, **and** sets up a public `deliverable-proofs` Storage bucket
    (with policies so each user can only upload/delete inside their own
    folder) for proof files. No separate storage provider needed. The script
-   is idempotent, so if you already have a ProofVault database, re-run the
+   is idempotent, so if you already have a Taskora database, re-run the
    whole file — it adds the clients table, backfills your existing projects
    into it, and adds the new deliverable evidence columns without touching
    your data.
@@ -34,10 +34,44 @@ Storage, free tier) · **Vercel** (hosting, free tier).
    here expects. You can turn them off in **Authentication → Providers →
    Email** if you'd rather skip that step while testing.
 
-## 2. Configure environment variables
+## 2. Google sign-in via Firebase (optional)
+
+Skip this and the app works exactly as before with email + password — the
+"Sign in with Google" button only renders once the Firebase variables are set.
+
+Firebase is used purely as the OAuth broker. It opens the Google popup, and the
+Google ID token it returns is exchanged for a normal Supabase session
+(`supabase.auth.signInWithIdToken`), so row-level security, the middleware and
+every server component keep working off the same Supabase user as before.
+
+**In Firebase** ([console.firebase.google.com](https://console.firebase.google.com)):
+
+1. Create a project, then **Authentication → Get started → Sign-in method** and
+   enable **Google**.
+2. Under **Authentication → Settings → Authorized domains**, make sure
+   `localhost` is listed (it is by default) and add your Vercel domain once you
+   deploy.
+3. **Project settings → Your apps → Web app** (create one if there isn't one).
+   Copy `apiKey`, `authDomain`, `projectId` and `appId` into the
+   `NEXT_PUBLIC_FIREBASE_*` variables below.
+4. Still in **Project settings → Your apps**, note the **Web client ID** shown
+   under the enabled Google provider (it looks like
+   `123456789-abc.apps.googleusercontent.com`). You need it in the next step.
+
+**In Supabase**:
+
+5. Go to **Authentication → Providers → Google** and enable it.
+6. Paste the Firebase **Web client ID** from step 4 into **Authorized Client
+   IDs**. This is the part that matters — Supabase checks the `aud` claim of the
+   incoming ID token against this list, and rejects it otherwise.
+7. Because sign-in happens through the Firebase popup rather than a Supabase
+   redirect, you can leave the Google **Client Secret** blank and skip adding a
+   Supabase callback URL to Google Cloud.
+
+## 3. Configure environment variables
 
 Copy `.env.example` to `.env.local` and fill it in with the values from
-step 1:
+steps 1–2:
 
 ```bash
 cp .env.example .env.local
@@ -45,10 +79,10 @@ cp .env.example .env.local
 
 `ANTHROPIC_API_KEY` is optional. With it, the AI Dispute Assistant has Claude
 write the summary; without it, the assistant still works and generates the
-same summary directly from your ProofVault records. The key is read only on
+same summary directly from your Taskora records. The key is read only on
 the server (in `app/api/dispute/route.ts`) and is never sent to the browser.
 
-## 3. Run locally
+## 4. Run locally
 
 ```bash
 npm install
@@ -58,7 +92,7 @@ npm run dev
 Visit `http://localhost:3000`, sign up, confirm your email, and create your
 first project.
 
-## 4. Deploy to Vercel
+## 5. Deploy to Vercel
 
 1. Push this project to a GitHub repo.
 2. In [Vercel](https://vercel.com), click **Add New → Project** and import
@@ -69,6 +103,9 @@ first project.
    Configuration** and update the Site URL (and add a redirect URL) to your
    Vercel domain, e.g. `https://your-app.vercel.app`, so the email
    confirmation links point to the right place.
+5. If you set up Google sign-in, add your Vercel domain to Firebase's
+   **Authentication → Settings → Authorized domains** too, or the popup will
+   fail with `auth/unauthorized-domain`.
 
 ## How it works
 
@@ -88,12 +125,12 @@ first project.
   projects for "Northwind Studio" and "northwind studio " end up under the
   same client, and the project page lists the client's other projects.
 - **AI Dispute Assistant** — "Analyze Dispute" on a project (or "Analyze" on a
-  single deliverable) collects everything ProofVault stores for that work —
+  single deliverable) collects everything Taskora stores for that work —
   deliverables, timestamps, proof files, client acknowledgements, payment
   amounts, payment history and payment status — and returns a neutral
   Delivery Summary, including which evidence is missing or inconsistent. The
   summary can be copied as text or downloaded as a PDF. It only uses data from
-  ProofVault, states plainly when something is not recorded, and does not
+  Taskora, states plainly when something is not recorded, and does not
   assign fault or give legal advice.
 - **File storage** — Proof files never pass through the Next.js server.
   The browser uploads the file straight to a Supabase Storage bucket using

@@ -189,15 +189,38 @@ export async function POST(request: Request) {
     console.error("Proof capture failed:", error);
 
     if (error instanceof OpenAI.APIError) {
+      // A 429 is two very different problems wearing the same status code.
+      // `insufficient_quota` means the account has no credit — retrying never
+      // clears it, so say so rather than inviting the user to try again.
       if (error.status === 429) {
+        const outOfCredit =
+          error.code === "insufficient_quota" || error.type === "insufficient_quota";
+
         return NextResponse.json(
-          { success: false, error: "The AI service is busy right now. Please try again in a moment." },
+          {
+            success: false,
+            error: outOfCredit
+              ? "Proof capture is unavailable: the OpenAI account behind this deployment has no remaining credit."
+              : "The AI service is rate-limiting requests right now. Please try again in a moment.",
+          },
           { status: 503 }
         );
       }
       if (error.status === 401 || error.status === 403) {
         return NextResponse.json(
-          { success: false, error: "Proof capture is not configured correctly on this deployment." },
+          {
+            success: false,
+            error: "Proof capture is not configured correctly on this deployment — the API key was rejected.",
+          },
+          { status: 503 }
+        );
+      }
+      if (error.status === 404) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `The configured model (${AI_MODEL}) is not available to this API key.`,
+          },
           { status: 503 }
         );
       }

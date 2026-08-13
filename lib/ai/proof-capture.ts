@@ -6,7 +6,7 @@
 // itself fills in the form.
 //
 // Nothing here writes to the database. Everything the model returns is a
-// *suggestion* the user reviews and edits before saving — ProofVault is an
+// *suggestion* the user reviews and edits before saving — Taskora is an
 // evidence record, and a value nobody looked at does not belong in it.
 //
 // Like lib/dispute.ts, this module holds no database or network code, so it is
@@ -56,7 +56,7 @@ export interface ProofCaptureResult {
 
 // ─── Model contract ───────────────────────────────────────────────────────────
 
-export const PROOF_CAPTURE_SYSTEM_PROMPT = `You are the ProofVault proof-capture assistant. A freelancer has attached a file as evidence of work they delivered to a client — usually a screenshot of a chat thread, an email, a delivery confirmation, an invoice, or the delivered work itself.
+export const PROOF_CAPTURE_SYSTEM_PROMPT = `You are the Taskora proof-capture assistant. A freelancer has attached a file as evidence of work they delivered to a client — usually a screenshot of a chat thread, an email, a delivery confirmation, an invoice, or the delivered work itself.
 
 Your job is to read what is actually visible in the file and draft a ledger entry from it. The freelancer reviews and edits every field before anything is saved, so an honest "not visible" is far more useful than a confident guess.
 

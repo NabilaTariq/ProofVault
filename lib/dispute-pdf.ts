@@ -217,7 +217,7 @@ export async function downloadDisputePdf(
   doc.setFontSize(9);
   doc.setTextColor(...WINE_950);
   doc.setCharSpace(2);
-  doc.text("PROOFVAULT", MARGIN, d.y);
+  doc.text("TASKORA", MARGIN, d.y);
   doc.setCharSpace(0);
 
   doc.setFont("helvetica", "normal");
@@ -328,5 +328,5 @@ export async function downloadDisputePdf(
   }
 
   const stamp = new Date(result.evidence.generated_at).toISOString().slice(0, 10);
-  doc.save(`proofvault-delivery-summary-${slugify(subject)}-${stamp}.pdf`);
+  doc.save(`taskora-delivery-summary-${slugify(subject)}-${stamp}.pdf`);
 }

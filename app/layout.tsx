@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ProofVault",
+  title: "Taskora",
   description:
     "A polished delivery ledger for freelancers to log proof, track payments, and keep client work organized.",
 };

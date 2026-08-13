@@ -1,5 +1,5 @@
 {
-  "name": "proofvault",
+  "name": "taskora",
   "private": true,
   "version": "0.1.0",
   "scripts": {
@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.116.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
+    "firebase": "^12.17.1",
     "jspdf": "^4.2.1",
     "next": "14.2.35",
     "openai": "^7.4.0",

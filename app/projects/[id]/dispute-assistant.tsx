@@ -73,7 +73,7 @@ export function DisputeAssistantSection({
     if (!result) return;
 
     const lines = [
-      "ProofVault — Delivery Summary",
+      "Taskora — Delivery Summary",
       scopeLabel,
       `Generated ${formatDateTime(result.evidence.generated_at)}`,
       "",
@@ -369,7 +369,7 @@ export function DisputeAssistantSection({
       <div className="flex items-center gap-2.5 border-t border-taupe-200 px-5 py-3 sm:px-6">
         <ShieldIcon className="h-3.5 w-3.5 shrink-0 text-taupe-500" />
         <p className="text-[11px] text-taupe-600">
-          Organizes your ProofVault records. Not a ruling, not legal advice.
+          Organizes your Taskora records. Not a ruling, not legal advice.
         </p>
       </div>
     </section>

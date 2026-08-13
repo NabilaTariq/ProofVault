@@ -1,6 +1,6 @@
 // ─── AI Dispute Assistant — evidence model ───────────────────────────────────
 //
-// The Dispute Assistant never decides who is right. It reads what ProofVault
+// The Dispute Assistant never decides who is right. It reads what Taskora
 // already stores for a project (or a single deliverable), assembles it into a
 // neutral evidence bundle, and produces a factual summary of that bundle.
 //
@@ -13,10 +13,10 @@ import { formatMoney, formatDate, formatDateTime, shortRef } from "./format";
 import { toNum, type Deliverable, type Project } from "./types";
 
 export const DISPUTE_DISCLAIMER =
-  "This summary organizes the records stored in ProofVault. It is not legal advice, " +
+  "This summary organizes the records stored in Taskora. It is not legal advice, " +
   "and it does not determine who is right or who is at fault in a dispute.";
 
-export const NOT_RECORDED = "Not recorded in ProofVault.";
+export const NOT_RECORDED = "Not recorded in Taskora.";
 
 // ─── Evidence bundle ──────────────────────────────────────────────────────────
 
@@ -186,7 +186,7 @@ export function buildDisputeEvidence(params: {
         : "Marked paid — exact date not recorded.",
     }));
 
-  // Activity trail assembled from the timestamps ProofVault stores.
+  // Activity trail assembled from the timestamps Taskora stores.
   const activity: DisputeActivityEntry[] = [];
   if (scope === "project") {
     activity.push({
@@ -337,7 +337,7 @@ export function buildRecordsReport(e: DisputeEvidence): DisputeReport {
 
   const whatDelivered =
     d.length === 0
-      ? "No deliverables are recorded for this project in ProofVault."
+      ? "No deliverables are recorded for this project in Taskora."
       : `${d.length} deliverable(s) recorded: ${listTitles(d)}. ` +
         `Total recorded value: ${e.totals.delivered_value_formatted}.` +
         (e.project.description
@@ -358,7 +358,7 @@ export function buildRecordsReport(e: DisputeEvidence): DisputeReport {
     d.length === 0
       ? NOT_RECORDED
       : withProof.length === 0
-      ? `No proof files are attached to any of the ${d.length} recorded deliverable(s). Each entry still carries a ProofVault timestamp.`
+      ? `No proof files are attached to any of the ${d.length} recorded deliverable(s). Each entry still carries a Taskora timestamp.`
       : `${withProof.length} of ${d.length} deliverable(s) have an attached proof file: ${withProof
           .map((x) => `"${x.title}" — ${x.proof_file_name ?? "file attached"}`)
           .join("; ")}.`;
@@ -368,7 +368,7 @@ export function buildRecordsReport(e: DisputeEvidence): DisputeReport {
     d.length === 0
       ? NOT_RECORDED
       : acked.length === 0
-      ? `No client acknowledgement or approval is recorded in ProofVault for any of the ${d.length} deliverable(s). This means it was not logged here — it does not indicate whether the client approved the work elsewhere.`
+      ? `No client acknowledgement or approval is recorded in Taskora for any of the ${d.length} deliverable(s). This means it was not logged here — it does not indicate whether the client approved the work elsewhere.`
       : `${acked.length} of ${d.length} deliverable(s) have a recorded client acknowledgement: ${acked
           .map(
             (x) =>
@@ -387,7 +387,7 @@ export function buildRecordsReport(e: DisputeEvidence): DisputeReport {
 
   const paymentHistory =
     e.payment_history.length === 0
-      ? "No payments are recorded against these deliverables in ProofVault."
+      ? "No payments are recorded against these deliverables in Taskora."
       : e.payment_history
           .map(
             (p) =>
@@ -403,12 +403,12 @@ export function buildRecordsReport(e: DisputeEvidence): DisputeReport {
       : `${e.totals.unpaid_count} of ${d.length} deliverable(s) are marked unpaid, totalling ${e.totals.unpaid_value_formatted} outstanding. ${e.totals.paid_value_formatted} is recorded as paid.`;
 
   const observations = [
-    `Project status in ProofVault: ${e.project.status}.`,
+    `Project status in Taskora: ${e.project.status}.`,
     `Platform: ${e.project.platform || "not recorded"}.`,
     e.client.total_projects_for_client && e.client.total_projects_for_client > 1
       ? `${e.client.name} has ${e.client.total_projects_for_client} projects recorded in this account.`
       : null,
-    "All timestamps above are the times entries were recorded in ProofVault, not independently verified delivery times.",
+    "All timestamps above are the times entries were recorded in Taskora, not independently verified delivery times.",
   ]
     .filter(Boolean)
     .join(" ");

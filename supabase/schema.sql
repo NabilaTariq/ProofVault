@@ -1,4 +1,4 @@
--- ProofVault schema
+-- Taskora schema
 -- Run this once in the Supabase SQL editor for your project.
 --
 -- This script is idempotent: it is safe to re-run on an existing project to
@@ -81,7 +81,7 @@ create index if not exists deliverables_user_id_idx on deliverables (user_id);
 -- spelling, and sets `client_id`. Existing inserts that only supply
 -- `client_name` keep working untouched.
 
-create or replace function proofvault_sync_project_client()
+create or replace function taskora_sync_project_client()
 returns trigger
 language plpgsql
 as $$
@@ -126,7 +126,7 @@ $$;
 drop trigger if exists projects_sync_client on projects;
 create trigger projects_sync_client
   before insert or update of client_name, user_id on projects
-  for each row execute function proofvault_sync_project_client();
+  for each row execute function taskora_sync_project_client();
 
 -- ─── Backfill clients for projects created before this migration ─────────────
 

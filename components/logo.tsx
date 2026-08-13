@@ -55,7 +55,7 @@ export function Logo({ tone = "dark" }: LogoProps) {
             isLight ? "text-cream-50" : "text-wine-950"
           }`}
         >
-          ProofVault
+          Taskora
         </span>
         <span
           className={`text-[10px] font-semibold uppercase tracking-[0.2em] sm:text-[11px] sm:tracking-[0.24em] ${

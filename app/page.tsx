@@ -272,7 +272,7 @@ export default function Home() {
 
           <div className="flex flex-col gap-3 border-t border-taupe-200 bg-sand-100/70 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
             <p className="text-[12.5px] text-taupe-600">
-              © {year} ProofVault · Delivery ledger for freelancers
+              © {year} Taskora · Delivery ledger for freelancers
             </p>
             <Link
               href="#top"
