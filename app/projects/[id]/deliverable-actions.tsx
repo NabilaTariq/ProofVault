@@ -1,23 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast";
 import { Spinner } from "@/components/icons";
-
-/**
- * The acknowledgement columns arrived after the first schema release, so a
- * database that predates them fails this update with a raw PostgREST message.
- * Turn that into something the operator can act on.
- */
-function describeUpdateError(raw: unknown, fallback: string) {
-  const message = typeof raw === "string" ? raw : "";
-  if (/acknowledg/i.test(message) && /(column|schema cache|does not exist)/i.test(message)) {
-    return "This database is missing the acknowledgement columns. Re-run supabase/schema.sql in the Supabase SQL editor.";
-  }
-  return message || fallback;
-}
 
 interface DeliverableActionsProps {
   id: string;
@@ -26,91 +13,103 @@ interface DeliverableActionsProps {
   acknowledged?: boolean;
 }
 
+type Action = "paid" | "ack" | "delete";
+
+/**
+ * `paid_at` and the acknowledgement columns arrived after the first schema
+ * release, so a database that predates them rejects the write with a raw
+ * PostgREST schema error. Turn that into something actionable.
+ */
+function describeError(raw: unknown, fallback: string) {
+  const message = typeof raw === "string" ? raw : "";
+  if (/(column|schema cache)/i.test(message) && /(does not exist|could not find)/i.test(message)) {
+    return "This database is out of date — re-run supabase/schema.sql in the Supabase SQL editor.";
+  }
+  return message || fallback;
+}
+
 export function DeliverableActions({ id, paid, title, acknowledged = false }: DeliverableActionsProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const [toggleBusy, setToggleBusy] = useState(false);
-  const [ackBusy, setAckBusy] = useState(false);
-  const [deleteBusy, setDeleteBusy] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  async function togglePaid() {
-    setToggleBusy(true);
+  // `running` covers the PATCH/DELETE request. `isPending` covers the server
+  // re-render that follows it — until that lands, this component still holds
+  // the old `paid` prop. Releasing the button after only the first of those
+  // made it snap back to "Mark As Paid" while the change was still in flight,
+  // which read as the click doing nothing.
+  const [running, setRunning] = useState<Action | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const lastAction = useRef<Action | null>(null);
+
+  const active: Action | null = running ?? (isPending ? lastAction.current : null);
+  const anyBusy = active !== null;
+
+  async function send(action: Action, request: () => Promise<Response>, onOk: () => void, failure: string) {
+    lastAction.current = action;
+    setRunning(action);
+
     try {
-      const res = await fetch(`/api/deliverables/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paid: !paid }),
-      });
+      const res = await request();
 
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        toast(json.error ?? "Could not update payment status. Please try again.", "error");
+        toast(describeError(json.error, failure), "error");
         return;
       }
 
-      toast(paid ? "Marked as unpaid." : "Marked as paid.", "success");
-      router.refresh();
+      onOk();
+      // Hold the busy state through the refresh — `active` stays truthy while
+      // the transition is pending.
+      startTransition(() => router.refresh());
     } catch {
       toast("Network error. Please check your connection.", "error");
     } finally {
-      setToggleBusy(false);
+      setRunning(null);
     }
   }
 
-  async function toggleAcknowledged() {
-    setAckBusy(true);
-    try {
-      const res = await fetch(`/api/deliverables/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ acknowledged: !acknowledged }),
-      });
+  function togglePaid() {
+    return send(
+      "paid",
+      () =>
+        fetch(`/api/deliverables/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paid: !paid }),
+        }),
+      () => toast(paid ? "Marked as unpaid." : "Marked as paid.", "success"),
+      "Could not update payment status. Please try again."
+    );
+  }
 
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
+  function toggleAcknowledged() {
+    return send(
+      "ack",
+      () =>
+        fetch(`/api/deliverables/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ acknowledged: !acknowledged }),
+        }),
+      () =>
         toast(
-          describeUpdateError(json.error, "Could not update acknowledgement. Please try again."),
-          "error"
-        );
-        return;
-      }
-
-      toast(
-        acknowledged ? "Client acknowledgement cleared." : "Client acknowledgement recorded.",
-        "success"
-      );
-      router.refresh();
-    } catch {
-      toast("Network error. Please check your connection.", "error");
-    } finally {
-      setAckBusy(false);
-    }
+          acknowledged ? "Client acknowledgement cleared." : "Client acknowledgement recorded.",
+          "success"
+        ),
+      "Could not update acknowledgement. Please try again."
+    );
   }
 
   async function handleDelete() {
-    setDeleteBusy(true);
-    try {
-      const res = await fetch(`/api/deliverables/${id}`, { method: "DELETE" });
-
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        toast(json.error ?? "Could not delete deliverable. Please try again.", "error");
-        setShowDeleteConfirm(false);
-        return;
-      }
-
-      toast("Deliverable deleted.", "info");
-      router.refresh();
-    } catch {
-      toast("Network error. Please check your connection.", "error");
-    } finally {
-      setDeleteBusy(false);
-      setShowDeleteConfirm(false);
-    }
+    await send(
+      "delete",
+      () => fetch(`/api/deliverables/${id}`, { method: "DELETE" }),
+      () => toast("Deliverable deleted.", "info"),
+      "Could not delete deliverable. Please try again."
+    );
+    setShowDeleteConfirm(false);
   }
-
-  const anyBusy = toggleBusy || ackBusy || deleteBusy;
 
   return (
     <>
@@ -119,6 +118,7 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
         <button
           onClick={togglePaid}
           disabled={anyBusy}
+          aria-busy={active === "paid"}
           aria-label={paid ? "Mark as unpaid" : "Mark as paid"}
           title={paid ? "Click to mark as unpaid" : "Click to mark as paid"}
           className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] transition disabled:pointer-events-none disabled:opacity-50 ${
@@ -127,7 +127,7 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
               : "border-taupe-200 bg-cream-50 text-ember-700 hover:border-wine-700"
           }`}
         >
-          {toggleBusy ? (
+          {active === "paid" ? (
             <span className="flex items-center gap-1">
               <Spinner className="h-3 w-3" />
               Updating…
@@ -141,6 +141,7 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
         <button
           onClick={toggleAcknowledged}
           disabled={anyBusy}
+          aria-busy={active === "ack"}
           aria-label={
             acknowledged ? "Clear client acknowledgement" : "Record client acknowledgement"
           }
@@ -155,7 +156,7 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
               : "border-taupe-200 bg-cream-50 text-ember-700 hover:border-wine-700"
           }`}
         >
-          {ackBusy ? (
+          {active === "ack" ? (
             <span className="flex items-center gap-1">
               <Spinner className="h-3 w-3" />
               Updating…
@@ -183,10 +184,10 @@ export function DeliverableActions({ id, paid, title, acknowledged = false }: De
         message={`"${title}" and any attached proof file will be permanently removed. This cannot be undone.`}
         confirmLabel="Delete"
         cancelLabel="Keep it"
-        loading={deleteBusy}
+        loading={active === "delete"}
         destructive={true}
         onConfirm={handleDelete}
-        onCancel={() => !deleteBusy && setShowDeleteConfirm(false)}
+        onCancel={() => active !== "delete" && setShowDeleteConfirm(false)}
       />
     </>
   );

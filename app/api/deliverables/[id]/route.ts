@@ -43,14 +43,26 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
-  const { error } = await supabase
+  // `.select()` matters: without it an update that matches zero rows — a row
+  // owned by another account, or one hidden by RLS — comes back with no error,
+  // so the client would report success while nothing changed.
+  const { data, error } = await supabase
     .from("deliverables")
     .update(update)
     .eq("id", params.id)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  if (!data) {
+    return NextResponse.json(
+      { error: "Deliverable not found, or it belongs to another account." },
+      { status: 404 }
+    );
   }
 
   return NextResponse.json({ ok: true });
@@ -73,14 +85,24 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
     .eq("user_id", user.id)
     .single();
 
-  const { error } = await supabase
+  const { data: deleted, error } = await supabase
     .from("deliverables")
     .delete()
     .eq("id", params.id)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  // Same reasoning as PATCH — a no-op delete must not report success.
+  if (!deleted) {
+    return NextResponse.json(
+      { error: "Deliverable not found, or it belongs to another account." },
+      { status: 404 }
+    );
   }
 
   if (existing?.file_key) {
