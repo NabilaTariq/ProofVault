@@ -220,7 +220,13 @@ export default async function ProjectPage({ params }: { params: { id: string } }
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         {/* Add deliverable form */}
         <div className="surface p-6 sm:p-7">
-          <DeliverableForm projectId={project.id} />
+          {/* aiEnabled is resolved on the server — the key itself never reaches
+              the browser, only whether the feature should offer itself. */}
+          <DeliverableForm
+            projectId={project.id}
+            currency={project.currency}
+            aiEnabled={Boolean(process.env.OPENAI_API_KEY)}
+          />
         </div>
 
         {/* Deliverable list */}
