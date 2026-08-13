@@ -56,7 +56,7 @@ export default function Home() {
         <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-32 h-[30rem] w-[30rem] rounded-full bg-brass-600/20 blur-3xl" />
 
         <div className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 sm:px-6 lg:px-8">
-          <header className="flex flex-wrap items-center justify-between gap-3 py-5 lg:grid lg:grid-cols-[auto_1fr_auto]">
+          <header className="flex flex-wrap items-center justify-between gap-2 py-4 sm:gap-3 sm:py-5 lg:grid lg:grid-cols-[auto_1fr_auto]">
             <Logo tone="light" />
 
             <nav className="hidden items-center justify-center gap-7 md:flex">
@@ -75,20 +75,20 @@ export default function Home() {
             <div className="flex items-center gap-1.5 lg:justify-end">
               <Link
                 href="/login"
-                className="rounded-full px-4 py-2.5 text-[13.5px] font-semibold text-cream-50/75 transition hover:bg-cream-50/10 hover:text-cream-50"
+                className="whitespace-nowrap rounded-full px-2.5 py-2 text-[13px] font-semibold text-cream-50/75 transition hover:bg-cream-50/10 hover:text-cream-50 sm:px-4 sm:py-2.5 sm:text-[13.5px]"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-cream-50 px-6 py-3 text-[13.5px] font-semibold text-wine-950 transition duration-200 hover:-translate-y-0.5 hover:bg-cream-100 hover:shadow-lift"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-cream-50 px-4 py-2.5 text-[13px] font-semibold text-wine-950 transition duration-200 hover:-translate-y-0.5 hover:bg-cream-100 hover:shadow-lift sm:px-6 sm:py-3 sm:text-[13.5px]"
               >
                 Get Started
               </Link>
             </div>
           </header>
 
-          <div className="grid flex-1 items-center gap-10 pb-8 lg:grid-cols-[1fr_1.02fr] lg:gap-6">
+          <div className="grid flex-1 items-center gap-8 pb-8 sm:gap-10 lg:grid-cols-[1fr_1.02fr] lg:gap-6">
             <div className="max-w-xl">
               <h1 className="text-[2.2rem] font-semibold leading-[1.1] tracking-[-0.03em] text-cream-50 sm:text-[2.9rem] lg:text-[3.35rem]">
                 Keep every deliverable.{" "}
@@ -98,11 +98,11 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="mt-7 max-w-md text-[15px] leading-[1.75] text-cream-50/75">
+              <p className="mt-5 max-w-md text-[15px] leading-[1.75] text-cream-50/75 sm:mt-7">
                 One organized vault for client work and the evidence behind it.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <div className="mt-7 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-x-6 sm:gap-y-3">
                 <Link
                   href="/signup"
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-cream-50 px-7 py-3.5 text-[14px] font-semibold text-wine-950 transition duration-200 hover:-translate-y-0.5 hover:bg-cream-100 hover:shadow-lift"
@@ -112,14 +112,14 @@ export default function Home() {
                 </Link>
                 <Link
                   href="#how-it-works"
-                  className="group inline-flex items-center gap-2 text-[14px] font-semibold text-cream-50 transition hover:text-sand-300"
+                  className="group inline-flex items-center justify-center gap-2 py-1 text-[14px] font-semibold text-cream-50 transition hover:text-sand-300 sm:justify-start sm:py-0"
                 >
                   See How It Works
                   <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
 
-              <div className="mt-9 flex flex-wrap items-center gap-2">
+              <div className="mt-7 flex flex-wrap items-center gap-2 sm:mt-9">
                 {["Projects", "Deliverables", "Proof files"].map((tag) => (
                   <span
                     key={tag}
@@ -132,9 +132,9 @@ export default function Home() {
             </div>
 
             <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div aria-hidden className="absolute -inset-6 rounded-[44px] bg-cream-50/10 blur-2xl" />
+              <div aria-hidden className="absolute -inset-4 rounded-[44px] bg-cream-50/10 blur-2xl sm:-inset-6" />
 
-              <div className="relative h-[38svh] min-h-[260px] w-full overflow-hidden rounded-[28px] border border-cream-50/15 shadow-soft sm:h-[46svh] lg:h-[min(74svh,660px)]">
+              <div className="relative h-[34svh] min-h-[220px] w-full overflow-hidden rounded-[28px] border border-cream-50/15 shadow-soft sm:h-[46svh] sm:min-h-[260px] lg:h-[min(74svh,660px)]">
                 <Image
                   src={heroPhoto}
                   alt="Freelancer on a client call, logging delivered work from a laptop in a coffee shop"

@@ -9,15 +9,15 @@ export function Logo({ tone = "dark" }: LogoProps) {
   const isLight = tone === "light";
 
   return (
-    <Link href="/" className="group inline-flex items-center gap-3">
+    <Link href="/" className="group inline-flex items-center gap-2.5 sm:gap-3">
       <span
-        className={`relative flex h-11 w-11 items-center justify-center rounded-[16px] border shadow-soft ${
+        className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] border shadow-soft sm:h-11 sm:w-11 ${
           isLight
             ? "border-cream-50/25 bg-cream-50"
             : "border-wine-950/20 bg-gradient-to-br from-wine-950 via-wine-900 to-wine-800"
         }`}
       >
-        <svg viewBox="0 0 44 44" aria-hidden="true" className="h-9 w-9">
+        <svg viewBox="0 0 44 44" aria-hidden="true" className="h-8 w-8 sm:h-9 sm:w-9">
           <rect x="6" y="6" width="32" height="32" rx="11" fill="#6D2932" />
           <path
             d="M13 15.5C13 13.567 14.567 12 16.5 12h11c1.933 0 3.5 1.567 3.5 3.5v13c0 1.933-1.567 3.5-3.5 3.5h-11c-1.933 0-3.5-1.567-3.5-3.5v-13Z"
@@ -51,14 +51,14 @@ export function Logo({ tone = "dark" }: LogoProps) {
       </span>
       <span className="flex flex-col leading-none">
         <span
-          className={`font-display text-2xl font-semibold tracking-tight ${
+          className={`font-display text-lg font-semibold tracking-tight sm:text-2xl ${
             isLight ? "text-cream-50" : "text-wine-950"
           }`}
         >
           ProofVault
         </span>
         <span
-          className={`text-[11px] font-semibold uppercase tracking-[0.24em] ${
+          className={`text-[10px] font-semibold uppercase tracking-[0.2em] sm:text-[11px] sm:tracking-[0.24em] ${
             isLight ? "text-cream-50/60" : "text-taupe-600"
           }`}
         >
