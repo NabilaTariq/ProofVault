@@ -54,9 +54,13 @@ every server component keep working off the same Supabase user as before.
 3. **Project settings → Your apps → Web app** (create one if there isn't one).
    Copy `apiKey`, `authDomain`, `projectId` and `appId` into the
    `NEXT_PUBLIC_FIREBASE_*` variables below.
-4. Still in **Project settings → Your apps**, note the **Web client ID** shown
-   under the enabled Google provider (it looks like
-   `123456789-abc.apps.googleusercontent.com`). You need it in the next step.
+4. Back in **Authentication → Sign-in method**, click the **Google** row to
+   expand it and open the **Web SDK configuration** dropdown. Copy the **Web
+   client ID** (it looks like `123456789-abc.apps.googleusercontent.com`) —
+   not the client secret. You need it in the next step. If that dropdown is
+   empty, the same value is in the Google Cloud Console under **APIs &
+   Services → Credentials → OAuth 2.0 Client IDs**, named *Web client (auto
+   created by Google Service)*.
 
 **In Supabase**:
 
