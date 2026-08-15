@@ -225,7 +225,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
           <DeliverableForm
             projectId={project.id}
             currency={project.currency}
-            aiEnabled={Boolean(process.env.OPENAI_API_KEY)}
+            aiEnabled={Boolean(process.env.OPENROUTER_API_KEY)}
           />
         </div>
 

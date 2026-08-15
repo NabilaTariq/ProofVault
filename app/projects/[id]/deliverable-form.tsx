@@ -24,7 +24,7 @@ interface DeliverableFormProps {
   projectId: string;
   /** Project currency, used to flag when the file shows a different one. */
   currency: string;
-  /** False when the deployment has no OPENAI_API_KEY — hides proof capture. */
+  /** False when the deployment has no OPENROUTER_API_KEY — hides proof capture. */
   aiEnabled: boolean;
 }
 

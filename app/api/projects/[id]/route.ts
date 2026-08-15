@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { PROOF_BUCKET } from "@/lib/storage";
 
 const ALLOWED_STATUSES = ["active", "completed", "archived"] as const;
 const ALLOWED_CURRENCIES = ["USD", "GBP", "EUR", "PKR", "INR", "AED", "CAD", "AUD"] as const;
@@ -96,4 +97,67 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 
   return NextResponse.json({ success: true, data });
+}
+
+export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ success: false, error: "Not authenticated" }, { status: 401 });
+  }
+
+  // Deliverable rows cascade with the project (schema.sql: project_id ... on
+  // delete cascade), but the proof files they point at live in Storage and do
+  // not. Read the keys before the cascade removes the rows that name them —
+  // afterwards there is nothing left to look them up by.
+  const { data: deliverables } = await supabase
+    .from("deliverables")
+    .select("file_key")
+    .eq("project_id", params.id)
+    .eq("user_id", user.id);
+
+  // `.select()` matters here for the same reason it does on PATCH: a delete
+  // matching zero rows — someone else's project, or one hidden by RLS — comes
+  // back without an error, so we would report success having deleted nothing.
+  const { data: deleted, error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", params.id)
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Project delete error:", error);
+    return NextResponse.json(
+      { success: false, error: "Could not delete project. Please try again." },
+      { status: 400 }
+    );
+  }
+
+  if (!deleted) {
+    return NextResponse.json(
+      { success: false, error: "Project not found, or it belongs to another account." },
+      { status: 404 }
+    );
+  }
+
+  const fileKeys = (deliverables ?? [])
+    .map((d) => d.file_key)
+    .filter((key): key is string => Boolean(key));
+
+  if (fileKeys.length > 0) {
+    try {
+      await supabase.storage.from(PROOF_BUCKET).remove(fileKeys);
+    } catch {
+      // The project is gone either way; stray stored objects can be cleaned up
+      // later and shouldn't fail a delete the user already saw succeed.
+    }
+  }
+
+  return NextResponse.json({ success: true });
 }

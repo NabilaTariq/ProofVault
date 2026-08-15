@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { createClient } from "@/lib/supabase/server";
-import { AI_MODEL, getOpenAI, isAiEnabled } from "@/lib/ai/client";
+import { AI_MODEL, getOpenRouter, isAiEnabled } from "@/lib/ai/client";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 import {
   PROOF_CAPTURE_SCHEMA,
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
 
   // ── Vision call ────────────────────────────────────────────────────────────
   try {
-    const completion = await getOpenAI().chat.completions.create({
+    const completion = await getOpenRouter().chat.completions.create({
       model: AI_MODEL,
       max_completion_tokens: 1500,
       response_format: {
@@ -189,19 +189,23 @@ export async function POST(request: Request) {
     console.error("Proof capture failed:", error);
 
     if (error instanceof OpenAI.APIError) {
-      // A 429 is two very different problems wearing the same status code.
-      // `insufficient_quota` means the account has no credit — retrying never
-      // clears it, so say so rather than inviting the user to try again.
-      if (error.status === 429) {
-        const outOfCredit =
-          error.code === "insufficient_quota" || error.type === "insufficient_quota";
-
+      // OpenRouter answers 402 when the account is out of credit. Retrying
+      // never clears that, so say so rather than inviting another attempt.
+      if (error.status === 402) {
         return NextResponse.json(
           {
             success: false,
-            error: outOfCredit
-              ? "Proof capture is unavailable: the OpenAI account behind this deployment has no remaining credit."
-              : "The AI service is rate-limiting requests right now. Please try again in a moment.",
+            error:
+              "Proof capture is unavailable: the OpenRouter account behind this deployment has no remaining credit.",
+          },
+          { status: 503 }
+        );
+      }
+      if (error.status === 429) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "The AI service is rate-limiting requests right now. Please try again in a moment.",
           },
           { status: 503 }
         );
@@ -219,7 +223,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             success: false,
-            error: `The configured model (${AI_MODEL}) is not available to this API key.`,
+            error: `The configured model (${AI_MODEL}) is not available on OpenRouter for this API key.`,
           },
           { status: 503 }
         );

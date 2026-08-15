@@ -6,6 +6,7 @@ import { formatMoney, formatDate } from "@/lib/format";
 import { toNum } from "@/lib/types";
 import type { Project } from "@/lib/types";
 import { ArrowRightIcon } from "@/components/icons";
+import { DeleteProjectButton } from "./delete-project-button";
 
 type StatusFilter = "all" | "active" | "completed" | "archived";
 
@@ -184,13 +185,21 @@ export function DashboardClient({ projects }: DashboardClientProps) {
                       {formatMoney(project.pending, project.currency)}
                     </td>
                     <td className="px-4 py-4">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="btn-ghost py-1.5 text-[12px]"
-                        aria-label={`Open project for ${project.client_name}`}
-                      >
-                        Open →
-                      </Link>
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          href={`/projects/${project.id}`}
+                          className="btn-ghost py-1.5 text-[12px]"
+                          aria-label={`Open project for ${project.client_name}`}
+                        >
+                          Open →
+                        </Link>
+                        <DeleteProjectButton
+                          projectId={project.id}
+                          clientName={project.client_name}
+                          deliverableCount={project.count}
+                          className="py-1.5 text-[12px]"
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -201,40 +210,53 @@ export function DashboardClient({ projects }: DashboardClientProps) {
           {/* Mobile cards */}
           <div className="grid gap-3 p-4 lg:hidden">
             {filtered.map((project) => (
-              <Link
+              // The card is a container rather than one big <Link>: a <button>
+              // cannot be nested inside an <a>, so the tap target stops at the
+              // footer and Delete sits outside it.
+              <div
                 key={project.id}
-                href={`/projects/${project.id}`}
-                className="block rounded-[22px] border border-taupe-200 bg-cream-50 p-4 transition hover:-translate-y-0.5 hover:shadow-lift"
+                className="rounded-[22px] border border-taupe-200 bg-cream-50 transition hover:shadow-lift"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-wine-950">{project.client_name}</p>
-                    <p className="mt-0.5 text-sm text-ember-700/75">{project.platform || "Direct"}</p>
+                <Link href={`/projects/${project.id}`} className="block p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-wine-950">{project.client_name}</p>
+                      <p className="mt-0.5 text-sm text-ember-700/75">{project.platform || "Direct"}</p>
+                    </div>
+                    <StatusBadge status={project.status} />
                   </div>
-                  <StatusBadge status={project.status} />
-                </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                  <div className="rounded-xl bg-sand-100 px-2.5 py-2">
-                    <p className="uppercase tracking-[0.18em] text-taupe-600">Agreed</p>
-                    <p className="mt-1 font-semibold text-wine-950">
-                      {formatMoney(toNum(project.agreed_amount), project.currency)}
-                    </p>
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                    <div className="rounded-xl bg-sand-100 px-2.5 py-2">
+                      <p className="uppercase tracking-[0.18em] text-taupe-600">Agreed</p>
+                      <p className="mt-1 font-semibold text-wine-950">
+                        {formatMoney(toNum(project.agreed_amount), project.currency)}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sand-100 px-2.5 py-2">
+                      <p className="uppercase tracking-[0.18em] text-taupe-600">Paid</p>
+                      <p className="mt-1 font-semibold text-wine-950">
+                        {formatMoney(project.paid, project.currency)}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-sand-100 px-2.5 py-2">
+                      <p className="uppercase tracking-[0.18em] text-taupe-600">Owed</p>
+                      <p className="mt-1 font-semibold text-wine-700">
+                        {formatMoney(project.pending, project.currency)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-sand-100 px-2.5 py-2">
-                    <p className="uppercase tracking-[0.18em] text-taupe-600">Paid</p>
-                    <p className="mt-1 font-semibold text-wine-950">
-                      {formatMoney(project.paid, project.currency)}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-sand-100 px-2.5 py-2">
-                    <p className="uppercase tracking-[0.18em] text-taupe-600">Owed</p>
-                    <p className="mt-1 font-semibold text-wine-700">
-                      {formatMoney(project.pending, project.currency)}
-                    </p>
-                  </div>
+                </Link>
+
+                <div className="flex justify-end border-t border-taupe-200/60 px-4 py-2">
+                  <DeleteProjectButton
+                    projectId={project.id}
+                    clientName={project.client_name}
+                    deliverableCount={project.count}
+                    className="px-2.5 py-1.5 text-[11px] uppercase tracking-[0.18em]"
+                  />
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </>
