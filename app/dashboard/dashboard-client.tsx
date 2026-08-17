@@ -64,14 +64,14 @@ export function DashboardClient({ projects }: DashboardClientProps) {
               Client Ledger
             </h2>
           </div>
-          <Link href="/projects/new" className="btn-primary shrink-0 self-start sm:self-auto">
+          <Link href="/projects/new" data-tour="new-project" className="btn-primary shrink-0 self-start sm:self-auto">
             New project
             <ArrowRightIcon className="h-4 w-4" />
           </Link>
         </div>
 
         {/* Search + Filter */}
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <div data-tour="search-filter" className="mt-4 flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
             <svg
               viewBox="0 0 20 20"

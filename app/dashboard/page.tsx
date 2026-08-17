@@ -7,6 +7,7 @@ import { formatMoney } from "@/lib/format";
 import { groupProjectsByCurrency } from "@/lib/format";
 import { toNum, type Project, type Deliverable } from "@/lib/types";
 import { DashboardClient } from "./dashboard-client";
+import { CoachMarkProvider } from "@/components/coach-mark";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -60,9 +61,10 @@ export default async function DashboardPage() {
   }));
 
   return (
+    <CoachMarkProvider>
     <main className="page-frame">
       {/* ── Header ── */}
-      <header className="surface mb-6 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <header data-tour="welcome" className="surface mb-6 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex items-center gap-4">
           <Logo />
           <span className="hidden h-8 w-px bg-taupe-200 sm:block" />
@@ -85,7 +87,7 @@ export default async function DashboardPage() {
       </header>
 
       {/* ── Overview stats ── */}
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section data-tour="stats" className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="stat-card">
           <p className="section-kicker">total projects</p>
           <p className="mt-2 text-3xl font-semibold text-wine-950">{allProjects.length}</p>
@@ -113,7 +115,7 @@ export default async function DashboardPage() {
 
       {/* ── Financial summary by currency ── */}
       {currencyGroups.length > 0 && (
-        <section className="mb-6">
+        <section data-tour="finance" className="mb-6">
           <div className="mb-3 flex items-center justify-between">
             <p className="section-kicker">financial summary</p>
             <p className="text-xs text-taupe-600">Active &amp; completed projects</p>
@@ -201,5 +203,6 @@ export default async function DashboardPage() {
       {/* ── Project list with search + filter ── */}
       <DashboardClient projects={enriched} />
     </main>
+    </CoachMarkProvider>
   );
 }
