@@ -160,6 +160,7 @@ export function Chatbot() {
           onClick={() => setIsOpen(true)}
           className="chatbot-fab"
           aria-label="Open Taskora AI chat"
+          data-tour="taskora-ai-assistant"
           id="chatbot-fab"
         >
           <SparkIcon className="h-6 w-6" />

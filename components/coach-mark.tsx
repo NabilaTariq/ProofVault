@@ -52,6 +52,12 @@ const TOUR_STEPS: TourStep[] = [
     description:
       "Quickly find projects by client name or platform, and filter by status.",
   },
+  {
+    target: "taskora-ai-assistant",
+    title: "Meet Taskora AI",
+    description:
+      "Open the assistant from the floating button to ask about your projects, deliverables, payments, and proof.",
+  },
 ];
 
 const STORAGE_KEY = "taskora_tour_completed";
