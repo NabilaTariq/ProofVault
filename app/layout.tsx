@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/toast";
+import { Chatbot } from "@/components/chatbot";
+import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,15 +18,21 @@ export const metadata: Metadata = {
     "A polished delivery ledger for freelancers to log proof, track payments, and keep client work organized.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <html lang="en" className={inter.variable}>
       <body className="font-body bg-cream-50 text-ember-700 bg-grain bg-grain antialiased">
         <ToastProvider>{children}</ToastProvider>
+        {user ? <Chatbot /> : null}
       </body>
     </html>
   );
