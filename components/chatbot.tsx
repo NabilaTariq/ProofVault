@@ -159,7 +159,7 @@ export function Chatbot() {
         <button
           onClick={() => setIsOpen(true)}
           className="chatbot-fab"
-          aria-label="Open ProofVault AI chat"
+          aria-label="Open Taskora AI chat"
           id="chatbot-fab"
         >
           <SparkIcon className="h-6 w-6" />
@@ -178,7 +178,7 @@ export function Chatbot() {
             className="chatbot-panel"
             role="dialog"
             aria-modal="true"
-            aria-label="ProofVault AI chat"
+            aria-label="Taskora AI chat"
           >
             <div className="chatbot-header">
               <div className="flex items-center gap-3">
@@ -187,7 +187,7 @@ export function Chatbot() {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-wine-950 tracking-tight">
-                    ProofVault AI
+                    Taskora AI
                   </h3>
                   <p className="text-[11px] text-taupe-500">
                     Ask me anything about your projects.
@@ -218,7 +218,7 @@ export function Chatbot() {
                     <SparkIcon className="h-7 w-7" />
                   </div>
                   <p className="mb-1 text-sm font-semibold text-wine-950">
-                    Welcome to ProofVault AI
+                    Welcome to Taskora AI
                   </p>
                   <p className="mb-5 max-w-[260px] text-center text-xs text-taupe-500">
                     I can help you review projects, payments, deliverables, proof, and activity from your vault.
@@ -335,7 +335,7 @@ export function Chatbot() {
                 </button>
               </div>
               <p className="mt-1.5 text-center text-[10px] text-taupe-400">
-                ProofVault AI answers from your data only - may make mistakes
+                Taskora AI answers from your data only - may make mistakes
               </p>
             </form>
           </div>
@@ -347,7 +347,7 @@ export function Chatbot() {
 
 function TypingDots() {
   return (
-    <span className="chatbot-typing" aria-label="ProofVault AI is thinking">
+    <span className="chatbot-typing" aria-label="Taskora AI is thinking">
       <span className="chatbot-dot" />
       <span className="chatbot-dot" />
       <span className="chatbot-dot" />

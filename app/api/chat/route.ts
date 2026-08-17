@@ -14,7 +14,7 @@ const MAX_PROJECT_DETAILS = 24;
 const MAX_DELIVERABLE_DETAILS = 20;
 const MAX_ACTIVITY_ITEMS = 12;
 
-const SYSTEM_PROMPT = `You are ProofVault AI, a helpful assistant for the signed-in user's own ProofVault records.
+const SYSTEM_PROMPT = `You are Taskora AI, a helpful assistant for the signed-in user's own ProofVault records.
 
 Rules you must follow:
 - Answer only using the context provided below.
