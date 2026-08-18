@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Logo } from "@/components/logo";
 import { ReceiptIcon, ShieldIcon, SparkIcon } from "@/components/icons";
@@ -8,6 +9,7 @@ import { groupProjectsByCurrency } from "@/lib/format";
 import { toNum, type Project, type Deliverable } from "@/lib/types";
 import { DashboardClient } from "./dashboard-client";
 import { CoachMarkProvider } from "@/components/coach-mark";
+import { Chatbot } from "@/components/chatbot";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -15,14 +17,20 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect("/login?redirectTo=/dashboard");
+  }
+
   const { data: projectsRaw } = await supabase
     .from("projects")
     .select("id, client_name, platform, agreed_amount, currency, status, created_at, description")
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   const { data: deliverablesRaw } = await supabase
     .from("deliverables")
-    .select("project_id, amount, paid");
+    .select("project_id, amount, paid")
+    .eq("user_id", user.id);
 
   const projects: Project[] = (projectsRaw ?? []) as Project[];
   const deliverables: Pick<Deliverable, "project_id" | "amount" | "paid">[] = deliverablesRaw ?? [];
@@ -203,6 +211,7 @@ export default async function DashboardPage() {
       {/* ── Project list with search + filter ── */}
       <DashboardClient projects={enriched} />
     </main>
+    <Chatbot />
     </CoachMarkProvider>
   );
 }
